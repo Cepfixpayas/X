@@ -3,7 +3,7 @@
 */
 const SUPABASE_URL = "https://erygxodyxjayxszxugwp.supabase.co";
 const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVyeWd4b2R5eGpheXhzenh1Z3dwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI0NzUxMzIsImV4cCI6MjA5ODA1MTEzMn0.uz5tbIPBXNhupJu2xpf7eKyRSWKSAvZDiodj46qISaI";
-const FORMSUBMIT_MAIL = "https://cepfixpayas.github.io/X/";
+const FORMSUBMIT_MAIL = "hamdiusta10@gmail.com";
 
 /* -------------------------
    NOT: Yukarıdaki değişkenleri doldurun.
