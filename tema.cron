@@ -1,0 +1,279 @@
+#!/usr/bin/env python3
+# =====================================================================
+#  Forum Engine Ultimate v10 — tema.cron
+#  Otomasyon / tema cron işlemleri (Python — yalnızca otomasyon için)
+#  ---------------------------------------------------------------------
+#  Görevleri:
+#    1) Supabase'ten konuları okuyup rss.xml üretir
+#    2) sitemap.xml (+ statik sayfalar) üretir
+#    3) RSS_IMPORT_URL tanımlıysa harici RSS'ten yeni konu içe aktarır
+#
+#  Çalıştırma (örnek GitHub Actions cron):
+#    SUPABASE_URL=...  SUPABASE_SERVICE_KEY=...  SITE_URL=https://kullanici.github.io/repo/ \
+#    python3 tema.cron
+#
+#  Ortam değişkenleri:
+#    SUPABASE_URL           (zorunlu)  https://xxxx.supabase.co
+#    SUPABASE_SERVICE_KEY   (zorunlu)  service_role veya anon key (okuma yeterli)
+#    SITE_URL               (zorunlu)  yayınlanan site kök adresi (sonunda / ile)
+#    RSS_IMPORT_URL         (ops.)     içe aktarılacak harici RSS adresi
+#    RSS_IMPORT_FORUM_ID    (ops.)     içe aktarılan konuların forum_id'si
+#    RSS_IMPORT_USER_ID     (ops.)     içe aktarılan konuların yazar id'si
+#
+#  Not: Yalnızca standart kütüphane kullanır (urllib, xml, json) — ek
+#  bağımlılık yoktur. GitHub Actions'ta doğrudan çalışır.
+# =====================================================================
+
+import os
+import re
+import sys
+import json
+import html
+import urllib.request
+import urllib.error
+from datetime import datetime, timezone
+from email.utils import format_datetime, parsedate_to_datetime
+from xml.sax.saxutils import escape as xml_escape
+
+# --------------------------- Konfig ---------------------------------
+SUPABASE_URL = os.environ.get("SUPABASE_URL", "").rstrip("/")
+SUPABASE_KEY = os.environ.get("SUPABASE_SERVICE_KEY") or os.environ.get("SUPABASE_ANON_KEY", "")
+SITE_URL = os.environ.get("SITE_URL", "https://example.github.io/").rstrip("/") + "/"
+
+RSS_IMPORT_URL = os.environ.get("RSS_IMPORT_URL", "")
+RSS_IMPORT_FORUM_ID = os.environ.get("RSS_IMPORT_FORUM_ID", "")
+RSS_IMPORT_USER_ID = os.environ.get("RSS_IMPORT_USER_ID", "")
+
+RSS_LIMIT = int(os.environ.get("RSS_LIMIT", "50"))
+SITE_NAME = os.environ.get("SITE_NAME", "Forum Engine Ultimate")
+
+STATIC_PAGES = ["#/uyeler", "#/kurallar", "#/sss", "#/iletisim", "#/arama"]
+
+
+# --------------------------- Yardımcılar ----------------------------
+def log(msg: str) -> None:
+    print(f"[tema.cron] {msg}", flush=True)
+
+
+def slugify(text: str) -> str:
+    tr = {"ç": "c", "ğ": "g", "ı": "i", "ö": "o", "ş": "s", "ü": "u", "İ": "i"}
+    text = (text or "").lower()
+    text = "".join(tr.get(c, c) for c in text)
+    text = re.sub(r"[^a-z0-9\s-]", "", text)
+    text = re.sub(r"\s+", "-", text.strip())
+    text = re.sub(r"-+", "-", text)
+    return (text[:80] or "konu")
+
+
+def supabase_get(table: str, query: str = ""):
+    """Supabase REST (PostgREST) üzerinden okuma."""
+    if not SUPABASE_URL or not SUPABASE_KEY:
+        log("SUPABASE_URL / KEY tanımlı değil — örnek veriyle devam ediliyor.")
+        return None
+    url = f"{SUPABASE_URL}/rest/v1/{table}{query}"
+    req = urllib.request.Request(url, headers={
+        "apikey": SUPABASE_KEY,
+        "Authorization": f"Bearer {SUPABASE_KEY}",
+        "Accept": "application/json",
+    })
+    try:
+        with urllib.request.urlopen(req, timeout=30) as resp:
+            return json.loads(resp.read().decode("utf-8"))
+    except urllib.error.HTTPError as e:
+        log(f"HTTP hata ({table}): {e.code} {e.read().decode('utf-8', 'ignore')[:200]}")
+    except Exception as e:
+        log(f"İstek hatası ({table}): {e}")
+    return None
+
+
+def supabase_insert(table: str, payload: dict) -> bool:
+    if not SUPABASE_URL or not SUPABASE_KEY:
+        return False
+    url = f"{SUPABASE_URL}/rest/v1/{table}"
+    data = json.dumps(payload).encode("utf-8")
+    req = urllib.request.Request(url, data=data, method="POST", headers={
+        "apikey": SUPABASE_KEY,
+        "Authorization": f"Bearer {SUPABASE_KEY}",
+        "Content-Type": "application/json",
+        "Prefer": "return=minimal",
+    })
+    try:
+        with urllib.request.urlopen(req, timeout=30) as resp:
+            return resp.status in (200, 201, 204)
+    except Exception as e:
+        log(f"Insert hatası ({table}): {e}")
+        return False
+
+
+def thread_url(t: dict) -> str:
+    tid = t.get("id", "")
+    forum = t.get("forum_id", "genel")
+    slug = t.get("slug") or slugify(t.get("title", ""))
+    return f"{SITE_URL}#/{tid}/{forum}/{slug}.html"
+
+
+def parse_date(value: str) -> datetime:
+    try:
+        return datetime.fromisoformat(str(value).replace("Z", "+00:00"))
+    except Exception:
+        return datetime.now(timezone.utc)
+
+
+# --------------------------- RSS üretimi ----------------------------
+def build_rss(threads):
+    now = format_datetime(datetime.now(timezone.utc))
+    items = []
+    for t in threads[:RSS_LIMIT]:
+        title = xml_escape(t.get("title", ""))
+        link = xml_escape(thread_url(t))
+        pub = format_datetime(parse_date(t.get("created_at")))
+        desc = (t.get("content") or "")
+        desc = re.sub(r"\[[^\]]+\]", "", desc)[:500]
+        items.append(f"""    <item>
+      <title>{title}</title>
+      <link>{link}</link>
+      <guid isPermaLink="false">{xml_escape(str(t.get('id','')))}</guid>
+      <pubDate>{pub}</pubDate>
+      <description><![CDATA[{desc}]]></description>
+    </item>""")
+
+    feed = f"""<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
+  <channel>
+    <title>{xml_escape(SITE_NAME)}</title>
+    <link>{xml_escape(SITE_URL)}</link>
+    <atom:link href="{xml_escape(SITE_URL)}rss.xml" rel="self" type="application/rss+xml" />
+    <description>Son konular — {xml_escape(SITE_NAME)}</description>
+    <language>tr-TR</language>
+    <lastBuildDate>{now}</lastBuildDate>
+    <generator>Forum Engine Ultimate v10 (tema.cron)</generator>
+{chr(10).join(items)}
+  </channel>
+</rss>
+"""
+    with open("rss.xml", "w", encoding="utf-8") as f:
+        f.write(feed)
+    log(f"rss.xml yazıldı ({len(items)} konu).")
+
+
+# --------------------------- Sitemap üretimi ------------------------
+def build_sitemap(threads):
+    now = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+    urls = [f"""  <url>
+    <loc>{xml_escape(SITE_URL)}</loc>
+    <lastmod>{now}</lastmod>
+    <changefreq>hourly</changefreq>
+    <priority>1.0</priority>
+  </url>"""]
+
+    for page in STATIC_PAGES:
+        urls.append(f"""  <url>
+    <loc>{xml_escape(SITE_URL + page)}</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url>""")
+
+    for t in threads:
+        lastmod = parse_date(t.get("last_post_at") or t.get("created_at")).strftime("%Y-%m-%d")
+        urls.append(f"""  <url>
+    <loc>{xml_escape(thread_url(t))}</loc>
+    <lastmod>{lastmod}</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>""")
+
+    sitemap = f"""<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:xhtml="http://www.w3.org/1999/xhtml">
+{chr(10).join(urls)}
+</urlset>
+"""
+    with open("sitemap.xml", "w", encoding="utf-8") as f:
+        f.write(sitemap)
+    log(f"sitemap.xml yazıldı ({len(urls)} URL).")
+
+
+# --------------------------- RSS içe aktarma ------------------------
+def import_external_rss():
+    if not (RSS_IMPORT_URL and RSS_IMPORT_FORUM_ID and RSS_IMPORT_USER_ID):
+        return
+    log(f"Harici RSS içe aktarılıyor: {RSS_IMPORT_URL}")
+    try:
+        with urllib.request.urlopen(RSS_IMPORT_URL, timeout=30) as resp:
+            raw = resp.read().decode("utf-8", "ignore")
+    except Exception as e:
+        log(f"RSS indirilemedi: {e}")
+        return
+
+    titles = re.findall(r"<title>(.*?)</title>", raw, re.S)
+    descs = re.findall(r"<description>(.*?)</description>", raw, re.S)
+    # İlk title kanal başlığıdır, atlanır
+    items = list(zip(titles[1:], descs[1:] if len(descs) > 1 else descs))
+
+    # Var olan başlıkları çek (mükerrer engelleme)
+    existing = supabase_get("threads", "?select=title") or []
+    existing_titles = {e.get("title", "").strip() for e in existing}
+
+    added = 0
+    for title, desc in items[:20]:
+        title = html.unescape(re.sub(r"<.*?>", "", title)).strip()
+        if not title or title in existing_titles:
+            continue
+        body = html.unescape(re.sub(r"<.*?>", "", desc)).strip()[:2000]
+        payload = {
+            "forum_id": RSS_IMPORT_FORUM_ID,
+            "user_id": RSS_IMPORT_USER_ID,
+            "title": title,
+            "slug": slugify(title),
+            "content": body or title,
+            "tags": ["rss"],
+        }
+        if supabase_insert("threads", payload):
+            added += 1
+            existing_titles.add(title)
+    log(f"RSS içe aktarma tamam: {added} yeni konu.")
+
+
+# --------------------------- Örnek veri (fallback) ------------------
+def sample_threads():
+    return [
+        {"id": "t1", "forum_id": "f1", "title": "Forum Engine Ultimate v10 yayında!",
+         "slug": "forum-engine-ultimate-v10-yayinda",
+         "content": "Yeni sürüm production ready olarak yayında.",
+         "created_at": datetime.now(timezone.utc).isoformat(),
+         "last_post_at": datetime.now(timezone.utc).isoformat()},
+    ]
+
+
+# --------------------------- main -----------------------------------
+def main():
+    log("Başlatılıyor…")
+
+    # 1) İçe aktarma (önce yeni konular eklensin ki feed'e girsin)
+    import_external_rss()
+
+    # 2) Konuları çek
+    threads = supabase_get(
+        "threads",
+        "?select=id,forum_id,title,slug,content,created_at,last_post_at"
+        "&order=last_post_at.desc&limit=" + str(RSS_LIMIT),
+    )
+    if threads is None:
+        log("Supabase'e erişilemedi; örnek veriyle dosyalar üretiliyor.")
+        threads = sample_threads()
+
+    # 3) Çıktı dosyaları
+    build_rss(threads)
+    build_sitemap(threads)
+
+    log("Tamamlandı.")
+
+
+if __name__ == "__main__":
+    try:
+        main()
+    except KeyboardInterrupt:
+        sys.exit(130)
+    except Exception as exc:
+        log(f"Beklenmeyen hata: {exc}")
+        sys.exit(1)
