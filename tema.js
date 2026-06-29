@@ -1,8 +1,8 @@
 /* tema.js — R10-like full theme behavior (ES2025)
    BAŞTA SADECE BU 3 DEĞİŞKEN OLMALIDIR:
 */
-const SUPABASE_URL = "";
-const SUPABASE_ANON_KEY = "";
+const SUPABASE_URL = "https://erygxodyxjayxszxugwp.supabase.co";
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVyeWd4b2R5eGpheXhzenh1Z3dwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI0NzUxMzIsImV4cCI6MjA5ODA1MTEzMn0.uz5tbIPBXNhupJu2xpf7eKyRSWKSAvZDiodj46qISaI";
 const FORMSUBMIT_MAIL = "";
 
 /* -------------------------
