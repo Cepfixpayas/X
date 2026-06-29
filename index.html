@@ -1,201 +1,183 @@
-<!DOCTYPE html>
-<html lang="tr" data-theme="midnight">
+<!doctype html>
+<html lang="tr">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta name="theme-color" content="#0b3d91" />
+  <title>GitHub Forum Engine Ultimate</title>
 
-  <!-- ============================================================= -->
-  <!--  GitHub Forum Engine Ultimate v10  —  Production Ready        -->
-  <!--  Tek dosya konfigürasyonu: yalnızca aşağıdaki 3 değişken.     -->
-  <!-- ============================================================= -->
-  <script>
-    /* =========================================================
-       AYARLAR  (yalnızca bu üç değeri doldurman yeterli)
-       ========================================================= */
-    window.CONFIG = {
-      SUPABASE_URL:      "YOUR_SUPABASE_URL",       // örn: https://xxxx.supabase.co
-      SUPABASE_ANON_KEY: "YOUR_SUPABASE_ANON_KEY",  // public anon key
-      FORMSUBMIT_MAIL:   "YOUR_FORMSUBMIT_MAIL"      // şifre sıfırlama maili (FormSubmit)
-    };
-  </script>
-
-  <!-- SEO temel meta (dinamik kısımları tema.js günceller) -->
-  <title>Forum Engine Ultimate — Modern vBulletin Deneyimi</title>
-  <meta name="description" content="Modern, hızlı, SEO uyumlu, Supabase destekli vanilla JavaScript forum motoru." />
-  <meta name="keywords" content="forum, vbulletin, supabase, github pages, topluluk" />
-  <meta name="robots" content="index, follow, max-image-preview:large" />
-  <meta name="author" content="Forum Engine Ultimate" />
-  <meta name="theme-color" content="#1b2a4a" />
-  <link rel="canonical" id="canonical-link" href="" />
-
-  <!-- Hreflang -->
-  <link rel="alternate" hreflang="tr" id="hreflang-tr" href="" />
-  <link rel="alternate" hreflang="x-default" id="hreflang-default" href="" />
-
-  <!-- OpenGraph -->
-  <meta property="og:type" content="website" id="og-type" />
-  <meta property="og:site_name" content="Forum Engine Ultimate" />
-  <meta property="og:title" content="Forum Engine Ultimate" id="og-title" />
-  <meta property="og:description" content="Modern, hızlı, SEO uyumlu forum motoru." id="og-desc" />
-  <meta property="og:url" content="" id="og-url" />
-  <meta property="og:image" content="" id="og-image" />
-
-  <!-- Twitter Card -->
+  <!-- SEO / Social -->
+  <meta name="description" content="Production-ready, Supabase destekli modern forum — vBulletin 3.8 hissi, mobile-first, PWA, WCAG 2.2 uyumlu." />
+  <link rel="canonical" href="https://{YOUR_GITHUB_PAGES_DOMAIN}/" />
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="GitHub Forum Engine Ultimate" />
+  <meta property="og:description" content="Modern, Supabase destekli forum. Mobile-first, accessible, SEO optimized." />
+  <meta property="og:url" content="https://{YOUR_GITHUB_PAGES_DOMAIN}/" />
   <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:title" content="Forum Engine Ultimate" id="tw-title" />
-  <meta name="twitter:description" content="Modern, hızlı, SEO uyumlu forum motoru." id="tw-desc" />
-  <meta name="twitter:image" content="" id="tw-image" />
 
-  <!-- RSS keşfi -->
-  <link rel="alternate" type="application/rss+xml" title="Forum RSS" href="rss.xml" />
+  <!-- PWA manifest minimal (optional further customization possible) -->
+  <link rel="manifest" href="/manifest.json" />
+  <meta name="mobile-web-app-capable" content="yes">
 
-  <!-- Content Security Policy (secure headers) -->
-  <meta http-equiv="Content-Security-Policy"
-        content="default-src 'self';
-                 script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net;
-                 style-src 'self' 'unsafe-inline';
-                 img-src 'self' data: blob: https:;
-                 font-src 'self' data:;
-                 connect-src 'self' https: wss:;
-                 frame-ancestors 'none';
-                 base-uri 'self';
-                 form-action 'self' https://formsubmit.co;" />
-  <meta name="referrer" content="strict-origin-when-cross-origin" />
-
-  <!-- Base JSON-LD: WebSite + Organization + SearchAction -->
-  <script type="application/ld+json" id="ld-website">
-  {
-    "@context": "https://schema.org",
-    "@graph": [
-      {
-        "@type": "WebSite",
-        "@id": "#website",
-        "name": "Forum Engine Ultimate",
-        "url": "",
-        "potentialAction": {
-          "@type": "SearchAction",
-          "target": { "@type": "EntryPoint", "urlTemplate": "{search_term_string}" },
-          "query-input": "required name=search_term_string"
-        }
-      },
-      {
-        "@type": "Organization",
-        "@id": "#organization",
-        "name": "Forum Engine Ultimate",
-        "url": "",
-        "logo": ""
-      }
-    ]
-  }
-  </script>
-  <!-- Sayfa bazlı JSON-LD buraya enjekte edilir -->
-  <script type="application/ld+json" id="ld-page"></script>
-
-  <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin />
+  <!-- Styles -->
   <link rel="stylesheet" href="tema.css" />
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💬</text></svg>" />
+
+  <!-- Lightweight Supabase client from CDN (no build system) -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js" defer></script>
+
+  <!-- App -->
+  <script type="module" src="tema.js" defer></script>
 </head>
-<body>
-  <!-- Erişilebilirlik: içeriğe atla -->
-  <a href="#main-content" class="skip-link">İçeriğe geç</a>
-
-  <!-- ============================ HEADER ============================ -->
-  <header class="site-header" id="site-header" role="banner">
-    <div class="container header-inner">
-      <button class="hamburger" id="btn-mobile-menu" aria-label="Menü" aria-expanded="false" aria-controls="mobile-nav">
-        <span></span><span></span><span></span>
-      </button>
-
-      <a href="#/" class="brand" aria-label="Ana sayfa">
-        <span class="brand-logo" aria-hidden="true">💬</span>
-        <span class="brand-name">Forum<strong>Engine</strong></span>
-      </a>
-
-      <form class="header-search" id="header-search" role="search" autocomplete="off">
-        <input type="search" id="global-search" name="q" placeholder="Forumda ara…"
-               aria-label="Forumda ara" />
-        <button type="submit" aria-label="Ara">🔍</button>
-        <div class="search-dropdown" id="search-dropdown" role="listbox" hidden></div>
-      </form>
-
-      <nav class="header-actions" aria-label="Kullanıcı işlemleri">
-        <button class="icon-btn" id="btn-new-topic" title="Yeni Konu Aç" aria-label="Yeni konu aç">✏️</button>
-        <button class="icon-btn has-badge" id="btn-notifications" title="Bildirimler" aria-label="Bildirimler">
-          🔔<span class="badge" id="notif-badge" hidden>0</span>
+<body class="theme-default" data-page="index">
+  <header class="site-header" role="banner" aria-label="Forum başlığı">
+    <div class="header-inner">
+      <div class="brand">
+        <button id="mobile-menu-toggle" aria-expanded="false" aria-controls="mobile-menu" class="hamburger" title="Menü">
+          ☰
         </button>
-        <button class="icon-btn has-badge" id="btn-messages" title="Mesajlar" aria-label="Özel mesajlar">
-          ✉️<span class="badge" id="msg-badge" hidden>0</span>
-        </button>
-        <button class="icon-btn" id="btn-theme" title="Tema Değiştir" aria-label="Tema değiştir">🎨</button>
-        <div class="profile-menu" id="profile-menu">
-          <button class="icon-btn avatar-btn" id="btn-profile" aria-haspopup="true" aria-expanded="false" aria-label="Profil menüsü">
-            <img id="header-avatar" alt="" src="" hidden /><span id="header-avatar-fallback">👤</span>
-          </button>
-          <div class="dropdown" id="profile-dropdown" hidden role="menu"></div>
+        <a href="/" class="logo" aria-label="Forum ana sayfa">
+          <img src="data:, " alt="" aria-hidden="true" /> <!-- decorative -->
+          <span class="site-title">Forum Engine Ultimate</span>
+        </a>
+      </div>
+
+      <div class="header-actions">
+        <div class="search-wrap" role="search">
+          <input id="live-search" type="search" placeholder="Hızlı arama — başlık, içerik, kullanıcı..." aria-label="Arama" />
+          <div id="search-suggestions" class="suggestions" role="listbox" aria-hidden="true"></div>
         </div>
-      </nav>
+
+        <div class="icons">
+          <button id="btn-notifications" title="Bildirimler" aria-haspopup="true" aria-expanded="false">🔔<span id="notif-count" class="badge" aria-hidden="true"></span></button>
+          <button id="btn-messages" title="Özel mesajlar" aria-haspopup="true" aria-expanded="false">✉️<span id="pm-count" class="badge" aria-hidden="true"></span></button>
+          <button id="btn-theme-switcher" title="Tema değiştir" aria-haspopup="menu">🎨</button>
+          <button id="btn-new-topic" title="Yeni konu aç">➕ Yeni Konu</button>
+          <div id="profile-area" class="profile-area" aria-live="polite"></div>
+        </div>
+      </div>
     </div>
 
-    <!-- Mobil tema/arama paneli -->
-    <nav class="mobile-nav" id="mobile-nav" hidden aria-label="Mobil menü"></nav>
+    <nav id="mobile-menu" class="mobile-menu" aria-label="Mobil menü">
+      <ul>
+        <li><a href="/" data-nav>Ana Sayfa</a></li>
+        <li><a href="#top10" data-nav>Top 10</a></li>
+        <li><a href="#categories" data-nav>Kategoriler</a></li>
+        <li><a href="#members" data-nav>Üyeler</a></li>
+        <li><a href="#rules" data-nav>Kurallar</a></li>
+      </ul>
+    </nav>
   </header>
 
-  <!-- Bildirim açılır paneli -->
-  <div class="flyout" id="notif-flyout" hidden role="dialog" aria-label="Bildirimler"></div>
-
-  <!-- ============================ MAIN ============================ -->
-  <main id="main-content" class="container" role="main" tabindex="-1">
-    <nav class="breadcrumb" id="breadcrumb" aria-label="Breadcrumb" hidden></nav>
-    <div id="app-view" aria-live="polite"><!-- Görünümler buraya render edilir --></div>
-  </main>
-
-  <!-- ============================ FOOTER ============================ -->
-  <footer class="site-footer" role="contentinfo">
-    <div class="container footer-grid">
-      <div class="footer-col">
-        <h4>📊 Forum İstatistikleri</h4>
-        <ul class="footer-stats" id="footer-stats">
-          <li>Toplam Konu: <strong id="fs-topics">—</strong></li>
-          <li>Toplam Mesaj: <strong id="fs-posts">—</strong></li>
-          <li>Toplam Üye: <strong id="fs-members">—</strong></li>
-          <li>Bugün Açılan: <strong id="fs-today">—</strong></li>
-          <li>Çevrim İçi: <strong id="fs-online">—</strong></li>
-          <li>Son Üye: <strong id="fs-last-member">—</strong></li>
-        </ul>
-      </div>
-      <div class="footer-col">
-        <h4>🔗 Bağlantılar</h4>
-        <ul class="footer-links">
-          <li><a href="#/kurallar">Kurallar</a></li>
-          <li><a href="#/sss">SSS</a></li>
-          <li><a href="#/iletisim">İletişim</a></li>
-          <li><a href="#/uyeler">Üye Listesi</a></li>
-          <li><a href="rss.xml">RSS</a></li>
-          <li><a href="sitemap.xml">Sitemap</a></li>
-        </ul>
-      </div>
-      <div class="footer-col">
-        <h4>🎨 Tema</h4>
-        <div class="footer-themes" id="footer-themes"></div>
-        <p class="footer-version">Forum Engine Ultimate <strong>v10</strong></p>
+  <main id="app" class="container" role="main">
+    <!-- Setup wizard overlay (first run) -->
+    <div id="setup-wizard" class="modal" aria-hidden="true" role="dialog" aria-modal="true">
+      <div class="modal-content" role="document">
+        <h2>İlk Kurulum</h2>
+        <p>Bu kurulum yalnızca ilk açılışta çalışacak. Yönetici hesabı oluşturun.</p>
+        <form id="setup-form" autocomplete="on">
+          <label>Admin E-posta<input type="email" name="email" required /></label>
+          <label>Şifre<input type="password" name="password" required minlength="8" /></label>
+          <button type="submit">Oluştur ve Giriş Yap</button>
+        </form>
       </div>
     </div>
-    <div class="footer-bottom">
-      <div class="container">
-        <span>© <span id="footer-year"></span> Forum Engine Ultimate — Tüm hakları saklıdır.</span>
+
+    <!-- Primary content placeholders; tema.js render edecektir -->
+    <section id="home" class="home">
+      <aside class="sidebar">
+        <div id="top10" class="card top10">
+          <h3>Top 10</h3>
+          <ol id="top10-list" aria-live="polite"></ol>
+        </div>
+
+        <div class="card stats" id="site-stats" aria-hidden="false">
+          <h3>İstatistikler</h3>
+          <ul>
+            <li>Toplam Konu: <span id="stat-topics">0</span></li>
+            <li>Toplam Mesaj: <span id="stat-posts">0</span></li>
+            <li>Toplam Üye: <span id="stat-users">0</span></li>
+            <li>Bugün Açılan: <span id="stat-today">0</span></li>
+            <li>Çevrim İçi: <span id="stat-online">0</span></li>
+          </ul>
+        </div>
+      </aside>
+
+      <section class="feed" aria-live="polite">
+        <div id="trending" class="card">
+          <h2>Trend Konular</h2>
+          <div id="trending-list" class="topics"></div>
+        </div>
+
+        <div id="recent" class="card">
+          <h2>Son Konular</h2>
+          <div id="topic-list" class="topics" aria-live="polite"></div>
+          <button id="load-more" class="btn" aria-label="Daha fazla yükle">Daha Fazla Yükle</button>
+        </div>
+      </section>
+    </section>
+
+    <!-- Thread / Post template rendered into #app when route changes -->
+    <template id="thread-template">
+      <article class="thread">
+        <nav class="breadcrumb" aria-label="Breadcrumb"></nav>
+        <header class="thread-header">
+          <h1 class="thread-title"></h1>
+          <div class="thread-meta"></div>
+        </header>
+        <div class="posts" id="posts"></div>
+        <div class="composer card">
+          <h3>Hızlı Cevap</h3>
+          <div id="composer-controls">
+            <textarea id="quick-reply" placeholder="Cevabınızı yazın..."></textarea>
+            <div class="composer-actions">
+              <button id="btn-quote" class="btn">Alıntı</button>
+              <button id="btn-preview" class="btn">Önizle</button>
+              <button id="btn-send" class="btn primary">Gönder</button>
+            </div>
+          </div>
+        </div>
+      </article>
+    </template>
+
+    <!-- New topic modal -->
+    <div id="new-topic-modal" class="modal" aria-hidden="true" role="dialog" aria-modal="true">
+      <div class="modal-content">
+        <h2>Yeni Konu Aç</h2>
+        <form id="new-topic-form">
+          <label>Kategori
+            <select id="new-topic-category" required></select>
+          </label>
+          <label>Başlık<input id="new-topic-title" required /></label>
+          <label>İçerik<textarea id="new-topic-body" required></textarea></label>
+          <div class="modal-actions">
+            <button type="submit" class="btn primary">Yayınla</button>
+            <button type="button" id="btn-cancel-new" class="btn">İptal</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Popups for login/register/etc are rendered into body by tema.js -->
+  </main>
+
+  <footer class="site-footer" role="contentinfo" aria-label="Footer">
+    <div class="footer-inner">
+      <div class="left">
+        <p>© <span id="copy-year"></span> Forum Engine Ultimate — Versiyon 1.0</p>
+      </div>
+      <div class="right">
+        <a href="/rules.html">Kurallar</a> · <a href="/privacy.html">Gizlilik</a> · <a href="/sitemap.xml">Sitemap</a> · <a href="/rss.xml">RSS</a>
       </div>
     </div>
   </footer>
 
-  <!-- Modal kökü (login/register/forgot/new-topic vb.) -->
-  <div class="modal-root" id="modal-root" hidden></div>
-  <!-- Toast bildirimleri -->
-  <div class="toast-root" id="toast-root" aria-live="assertive"></div>
+  <!-- Accessibility helpers -->
+  <div id="a11y-live" class="sr-only" aria-live="assertive" aria-atomic="true"></div>
 
-  <!-- Supabase JS (sürüm sabitlenmiş — supply chain güvenliği) -->
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"
-          crossorigin="anonymous"></script>
-  <script src="tema.js" defer></script>
+  <!-- Minimal noscript fallbacks for SEO -->
+  <noscript>
+    <style>.search-wrap{display:none}</style>
+    <div class="no-js-message">JavaScript kapalı. Forumun tüm özellikleri için JavaScript gereklidir.</div>
+  </noscript>
 </body>
 </html>
