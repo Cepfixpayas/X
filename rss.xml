@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Forum Engine Ultimate v10 — RSS Feed
+  Bu dosya tema.cron (Python) tarafından otomatik güncellenir.
+  Aşağıdaki örnek girişler, cron çalışana kadar geçerlidir.
+-->
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
+  <channel>
+    <title>Forum Engine Ultimate</title>
+    <link>https://example.github.io/</link>
+    <atom:link href="https://example.github.io/rss.xml" rel="self" type="application/rss+xml" />
+    <description>Modern, hızlı, SEO uyumlu, Supabase destekli forum motoru — son konular.</description>
+    <language>tr-TR</language>
+    <lastBuildDate>Mon, 29 Jun 2026 14:47:00 +0000</lastBuildDate>
+    <generator>Forum Engine Ultimate v10 (tema.cron)</generator>
+
+    <item>
+      <title>Forum Engine Ultimate v10 yayında!</title>
+      <link>https://example.github.io/#/t1/f1/forum-engine-ultimate-v10-yayinda.html</link>
+      <guid isPermaLink="false">t1</guid>
+      <pubDate>Mon, 29 Jun 2026 10:00:00 +0000</pubDate>
+      <description><![CDATA[Yeni sürüm production ready olarak yayında. Tüm geri bildirimlerinizi bekliyoruz!]]></description>
+    </item>
+    <item>
+      <title>Vanilla JS ile SPA nasıl yazılır?</title>
+      <link>https://example.github.io/#/t2/f3/vanilla-js-ile-spa-nasil-yazilir.html</link>
+      <guid isPermaLink="false">t2</guid>
+      <pubDate>Sun, 28 Jun 2026 12:00:00 +0000</pubDate>
+      <description><![CDATA[Modern tarayıcılarda framework olmadan SPA yazmak çok keyifli.]]></description>
+    </item>
+  </channel>
+</rss>
