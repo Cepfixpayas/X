@@ -3,55 +3,63 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <meta name="theme-color" content="#0b3d91" />
-  <title>GitHub Forum Engine Ultimate</title>
+  <meta name="theme-color" content="#071227" />
+  <title>R10 Forum — Forum Engine Ultimate</title>
 
   <!-- SEO / Social -->
-  <meta name="description" content="Production-ready, Supabase destekli modern forum — vBulletin 3.8 hissi, mobile-first, PWA, WCAG 2.2 uyumlu." />
+  <meta name="description" content="R10 tarzı profesyonel forum — Supabase destekli, mobile-first, accessible, SEO optimized." />
   <link rel="canonical" href="https://{YOUR_GITHUB_PAGES_DOMAIN}/" />
   <meta property="og:type" content="website" />
-  <meta property="og:title" content="GitHub Forum Engine Ultimate" />
-  <meta property="og:description" content="Modern, Supabase destekli forum. Mobile-first, accessible, SEO optimized." />
+  <meta property="og:title" content="R10 Forum — Forum Engine Ultimate" />
+  <meta property="og:description" content="R10 tarzı profesyonel forum. Mobile-first, accessible, SEO optimized." />
   <meta property="og:url" content="https://{YOUR_GITHUB_PAGES_DOMAIN}/" />
   <meta name="twitter:card" content="summary_large_image" />
 
-  <!-- PWA manifest minimal (optional further customization possible) -->
+  <!-- PWA manifest -->
   <link rel="manifest" href="/manifest.json" />
   <meta name="mobile-web-app-capable" content="yes">
 
   <!-- Styles -->
   <link rel="stylesheet" href="tema.css" />
 
-  <!-- Lightweight Supabase client from CDN (no build system) -->
+  <!-- Supabase client (UMD) -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js" defer></script>
-
   <!-- App -->
   <script type="module" src="tema.js" defer></script>
 </head>
-<body class="theme-default" data-page="index">
-  <header class="site-header" role="banner" aria-label="Forum başlığı">
+<body class="theme-r10" data-page="index">
+  <header class="site-header" role="banner" aria-label="Site üst bilgi">
     <div class="header-inner">
       <div class="brand">
-        <button id="mobile-menu-toggle" aria-expanded="false" aria-controls="mobile-menu" class="hamburger" title="Menü">
-          ☰
-        </button>
-        <a href="/" class="logo" aria-label="Forum ana sayfa">
-          <img src="data:, " alt="" aria-hidden="true" /> <!-- decorative -->
-          <span class="site-title">Forum Engine Ultimate</span>
+        <button id="mobile-menu-toggle" aria-expanded="false" aria-controls="mobile-menu" class="hamburger" title="Menü" aria-label="Menü">☰</button>
+        <a href="/" class="logo" aria-label="R10 Forum Ana Sayfa">
+          <!-- minimal svg logo inspired by R10 -->
+          <svg width="36" height="36" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect width="24" height="24" rx="4" fill="#ff7a18"/><text x="12" y="16" text-anchor="middle" font-family="Arial" font-size="12" fill="#071227" font-weight="700">R10</text></svg>
+          <span class="site-title">R10 Forum</span>
         </a>
       </div>
 
       <div class="header-actions">
-        <div class="search-wrap" role="search">
-          <input id="live-search" type="search" placeholder="Hızlı arama — başlık, içerik, kullanıcı..." aria-label="Arama" />
+        <form class="search-wrap" role="search" onsubmit="return false;">
+          <label for="live-search" class="sr-only">Ara</label>
+          <input id="live-search" type="search" placeholder="Konu, kullanıcı, etiket ara..." aria-label="Arama" autocomplete="off" />
           <div id="search-suggestions" class="suggestions" role="listbox" aria-hidden="true"></div>
-        </div>
+        </form>
 
-        <div class="icons">
-          <button id="btn-notifications" title="Bildirimler" aria-haspopup="true" aria-expanded="false">🔔<span id="notif-count" class="badge" aria-hidden="true"></span></button>
-          <button id="btn-messages" title="Özel mesajlar" aria-haspopup="true" aria-expanded="false">✉️<span id="pm-count" class="badge" aria-hidden="true"></span></button>
-          <button id="btn-theme-switcher" title="Tema değiştir" aria-haspopup="menu">🎨</button>
-          <button id="btn-new-topic" title="Yeni konu aç">➕ Yeni Konu</button>
+        <div class="icons" role="group" aria-label="Kısayollar">
+          <button id="btn-new-topic" class="btn icon" title="Yeni Konu" aria-label="Yeni Konu">➕</button>
+          <button id="btn-notifications" class="btn icon" title="Bildirimler" aria-label="Bildirimler"> 
+            <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path fill="#e6eef8" d="M12 2a6 6 0 0 0-6 6v4l-2 2v1h16v-1l-2-2V8a6 6 0 0 0-6-6z"></path></svg>
+            <span id="notif-count" class="badge" aria-hidden="true"></span>
+          </button>
+
+          <button id="btn-messages" class="btn icon" title="Özel Mesajlar" aria-label="Özel Mesajlar">
+            <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path fill="#e6eef8" d="M4 4h16v12H5.17L4 17.17V4z"></path></svg>
+            <span id="pm-count" class="badge" aria-hidden="true"></span>
+          </button>
+
+          <button id="btn-theme-switcher" class="btn icon" title="Tema değiştir" aria-label="Tema değiştir">🎨</button>
+
           <div id="profile-area" class="profile-area" aria-live="polite"></div>
         </div>
       </div>
@@ -69,35 +77,34 @@
   </header>
 
   <main id="app" class="container" role="main">
-    <!-- Setup wizard overlay (first run) -->
+    <!-- Setup wizard (first run) -->
     <div id="setup-wizard" class="modal" aria-hidden="true" role="dialog" aria-modal="true">
       <div class="modal-content" role="document">
         <h2>İlk Kurulum</h2>
-        <p>Bu kurulum yalnızca ilk açılışta çalışacak. Yönetici hesabı oluşturun.</p>
+        <p>Yönetici hesabı oluşturun. Bu işlem yalnızca ilk açılışta görünür.</p>
         <form id="setup-form" autocomplete="on">
           <label>Admin E-posta<input type="email" name="email" required /></label>
           <label>Şifre<input type="password" name="password" required minlength="8" /></label>
-          <button type="submit">Oluştur ve Giriş Yap</button>
+          <div class="modal-actions"><button type="submit" class="btn primary">Oluştur ve Giriş Yap</button></div>
         </form>
       </div>
     </div>
 
-    <!-- Primary content placeholders; tema.js render edecektir -->
-    <section id="home" class="home">
+    <section id="home" class="home" aria-label="Anasayfa">
       <aside class="sidebar">
-        <div id="top10" class="card top10">
-          <h3>Top 10</h3>
+        <div id="top10" class="card top10" aria-labelledby="top10-title">
+          <h3 id="top10-title">Top 10</h3>
           <ol id="top10-list" aria-live="polite"></ol>
         </div>
 
         <div class="card stats" id="site-stats" aria-hidden="false">
           <h3>İstatistikler</h3>
           <ul>
-            <li>Toplam Konu: <span id="stat-topics">0</span></li>
-            <li>Toplam Mesaj: <span id="stat-posts">0</span></li>
-            <li>Toplam Üye: <span id="stat-users">0</span></li>
-            <li>Bugün Açılan: <span id="stat-today">0</span></li>
-            <li>Çevrim İçi: <span id="stat-online">0</span></li>
+            <li>Toplam Konu: <strong id="stat-topics">0</strong></li>
+            <li>Toplam Mesaj: <strong id="stat-posts">0</strong></li>
+            <li>Toplam Üye: <strong id="stat-users">0</strong></li>
+            <li>Bugün Açılan: <strong id="stat-today">0</strong></li>
+            <li>Çevrim İçi: <strong id="stat-online">0</strong></li>
           </ul>
         </div>
       </aside>
@@ -108,15 +115,15 @@
           <div id="trending-list" class="topics"></div>
         </div>
 
-        <div id="recent" class="card">
-          <h2>Son Konular</h2>
+        <div id="recent" class="card" aria-labelledby="recent-title">
+          <h2 id="recent-title">Son Konular</h2>
           <div id="topic-list" class="topics" aria-live="polite"></div>
-          <button id="load-more" class="btn" aria-label="Daha fazla yükle">Daha Fazla Yükle</button>
+          <div class="more-actions"><button id="load-more" class="btn" aria-label="Daha fazla yükle">Daha Fazla Yükle</button></div>
         </div>
       </section>
     </section>
 
-    <!-- Thread / Post template rendered into #app when route changes -->
+    <!-- Thread template -->
     <template id="thread-template">
       <article class="thread">
         <nav class="breadcrumb" aria-label="Breadcrumb"></nav>
@@ -128,6 +135,7 @@
         <div class="composer card">
           <h3>Hızlı Cevap</h3>
           <div id="composer-controls">
+            <label class="sr-only" for="quick-reply">Cevap</label>
             <textarea id="quick-reply" placeholder="Cevabınızı yazın..."></textarea>
             <div class="composer-actions">
               <button id="btn-quote" class="btn">Alıntı</button>
@@ -144,9 +152,7 @@
       <div class="modal-content">
         <h2>Yeni Konu Aç</h2>
         <form id="new-topic-form">
-          <label>Kategori
-            <select id="new-topic-category" required></select>
-          </label>
+          <label>Kategori<select id="new-topic-category" required></select></label>
           <label>Başlık<input id="new-topic-title" required /></label>
           <label>İçerik<textarea id="new-topic-body" required></textarea></label>
           <div class="modal-actions">
@@ -157,13 +163,12 @@
       </div>
     </div>
 
-    <!-- Popups for login/register/etc are rendered into body by tema.js -->
   </main>
 
   <footer class="site-footer" role="contentinfo" aria-label="Footer">
     <div class="footer-inner">
       <div class="left">
-        <p>© <span id="copy-year"></span> Forum Engine Ultimate — Versiyon 1.0</p>
+        <p>© <span id="copy-year"></span> R10 Forum — Forum Engine Ultimate</p>
       </div>
       <div class="right">
         <a href="/rules.html">Kurallar</a> · <a href="/privacy.html">Gizlilik</a> · <a href="/sitemap.xml">Sitemap</a> · <a href="/rss.xml">RSS</a>
@@ -171,10 +176,8 @@
     </div>
   </footer>
 
-  <!-- Accessibility helpers -->
   <div id="a11y-live" class="sr-only" aria-live="assertive" aria-atomic="true"></div>
 
-  <!-- Minimal noscript fallbacks for SEO -->
   <noscript>
     <style>.search-wrap{display:none}</style>
     <div class="no-js-message">JavaScript kapalı. Forumun tüm özellikleri için JavaScript gereklidir.</div>
